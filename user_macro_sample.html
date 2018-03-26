@@ -1,0 +1,76 @@
+## @noparams
+<div style="width:98%; float:left; margin-bottom:20px;">
+  <span>置換リスト</span>
+  <br/>
+  <span>置換前の文字列と置換後の文字列をカンマ区切りで記載する(複数行可)</span>
+  <div style="float:right;">
+    <button type="button" class="button_clear">クリア</button>
+  </div>
+  <textarea class="replace_source" style="width:100%; height:200px;" />
+  <div style="float:left;">
+    <button class="replace_do" type="button" style="width:200px;">置換実行</button>
+  </div>
+</div>
+<div style="width:48%; float:left;">
+  <span >置換前テキスト</span>
+  <div style="float:right;">
+    <button type="button" class="button_clear">クリア</button>
+    <button type="button" class="button_copy">コピー</button>
+  </div>
+  <textarea class="replace_before" style="width:100%; height:400px;" />
+</div>
+<div style="width:48%; float:left; margin-left:20px;">
+  <span>置換後テキスト</span>
+  <div style="float:right;">
+    <button type="button" class="button_copy">コピー</button>
+  </div>
+  <textarea class="replace_after" style="width:100%; height:400px;" />
+</div>
+<script type="text/javascript">
+  $(document).ready(function(){
+    $("textarea.replace_after").attr("readonly", true);
+    $("button.replace_do").click(function(){
+      let resultlines = "";
+      const replace_words_list = create_replace_words_array();
+      const source_lines = $("textarea.replace_before").val().split("\n");
+      source_lines.forEach(function(line, idx, lines){
+        resultlines = resultlines + replace_word(replace_words_list, line) + (idx == lines.length - 1 ? "" : "\n");
+      });
+      $("textarea.replace_after").val(resultlines);
+    });
+
+    $("#main-content div > div > button.button_copy").on("click", function(){
+      $(this).parent("div:first").next("textarea").select();
+      document.execCommand("copy");
+    });
+    $("#main-content div > div > button.button_clear").on("click", function(){
+      $(this).parent("div:first").next("textarea").val("");
+    });
+  });
+
+  //置換辞書リスト作成
+  function create_replace_words_array(){
+    let arr = new Array();
+    const replace_words = $("textarea.replace_source").val().split("\n");
+    replace_words.forEach(pair => {
+      let before_after = pair.split(",");
+      if ((before_after.length < 2) || before_after[0] == "" || before_after[1] == "") {
+        return;
+      }
+      arr[before_after[0]] = before_after[1];
+    });
+    return arr;
+  }
+  //置換
+  function replace_word(list, source)
+  {
+    for(var key in list)
+    {
+      if (source.indexOf(key) != -1)
+      {
+        return source.replace(key, list[key]);
+      }
+    }
+    return source;
+  }
+</script>
